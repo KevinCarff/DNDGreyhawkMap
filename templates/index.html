@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Map with Unique Identifiers</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        /* Map container */
+        #map {
+            width: 100vw;
+            height: 100vh;
+            background-color: #F5F5EB;  /* Optional background color */
+        }
+
+        /* Hover effect for hexagons */
+        .hexagon-button:hover {
+            fill-opacity: 0.3;  /* Change opacity on hover for a button effect */
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Map settings
+        const imageBounds = [[-300, -400], [1000, 1500]];
+
+        // Initialize the Leaflet map
+        const map = L.map('map', {
+            center: [450, 0],
+            zoom: 0,
+            minZoom: 0,
+            maxZoom: 4,
+            crs: L.CRS.Simple,
+            maxBounds: imageBounds,
+            maxBoundsViscosity: 0.7
+        });
+
+        // Add tile layer for the map
+        L.tileLayer('/static/tiles/{z}/{x}/{y}.png', {
+            tileSize: 256,
+            bounds: imageBounds,
+            minZoom: 0,
+            maxZoom: 4,
+            noWrap: true,
+            errorTileUrl: '/static/tiles/placeholder.png'
+        }).addTo(map);
+
+        // Hexagon grid settings
+        const hexRadius = 3.7;
+        const hexWidth = Math.sqrt(3) * hexRadius;
+        const hexHeight = 2 * hexRadius;
+        const xOrigin1 = 107.9;
+        const yOrigin1 = 149.5;
+        const xJumpSpace = 11.075;
+        const yJumpSpace = 6.395;
+        const xDistance = 915;
+        const yDistance = 765;
+        const xOrigin2 = 107.9 + xJumpSpace/2;
+        const yOrigin2 = 149.5 + yJumpSpace/2;
+
+        // Function to calculate hexagon vertices
+        function calculateHexagonVertices(centerX, centerY, radius) {
+            const vertices = [];
+            for (let i = 0; i < 6; i++) {
+                const angle = Math.PI / 3 * i;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                vertices.push([y, x]);  // Leaflet expects [lat, lng] format
+            }
+            return vertices;
+        }
+
+        // Create hexagonal grid and add interactive hexagon buttons
+        let row = 0;
+        for (let y = yOrigin1; y < yDistance; y += yJumpSpace, row++) {
+            let col = 0;
+            for (let x = xOrigin1; x < xDistance; x += xJumpSpace, col++) {
+                const centerX = x;
+                const centerY = y;
+
+                // Generate a unique ID for each hexagon
+                const hexId = 'x' + row + "_"  + col;
+
+                // Calculate vertices for the hexagon
+                const hexVertices = calculateHexagonVertices(centerX, centerY, hexRadius);
+
+                // Create hexagon polygon with settings
+                const hexagon = L.polygon(hexVertices, {
+                    color: 'black',
+                    weight: 0,
+                    fillColor: '#ffcc00',
+                    fillOpacity: 0.0,
+                    className: 'hexagon-button'
+                }).addTo(map);
+
+                // Add click event to hexagon as a button
+                hexagon.on('click', () => {
+                    fetchHexData(hexId, [centerY, centerX]); // Use hexId for fetching data
+                });
+            }
+        }
+
+        // Create hexagonal grid and add interactive hexagon buttons
+        row = 0;
+        for (let y = yOrigin2; y < yDistance; y += yJumpSpace, row++) {
+            let col = 0;
+            for (let x = xOrigin2; x < xDistance; x += xJumpSpace, col++) {
+                const centerX = x;
+                const centerY = y;
+
+                // Generate a unique ID for each hexagon
+                const hexId = 'y' + row + "_" + col;
+
+                // Calculate vertices for the hexagon
+                const hexVertices = calculateHexagonVertices(centerX, centerY, hexRadius);
+
+                // Create hexagon polygon with settings
+                const hexagon = L.polygon(hexVertices, {
+                    color: 'black',
+                    weight: 0,
+                    fillColor: '#ffcc00',
+                    fillOpacity: 0.0,
+                    className: 'hexagon-button'
+                }).addTo(map);
+
+                // Add click event to hexagon as a button
+                hexagon.on('click', () => {
+                    fetchHexData(hexId, [centerY, centerX]); // Use hexId for fetching data
+                });
+            }
+        }
+
+        // Function to fetch and display hex data in a popup
+        function fetchHexData(hexId, coords) {
+            fetch(`/hex/${hexId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        L.popup()
+                            .setLatLng(coords)
+                            .setContent(`<div class="popup-title">${hexId}</div>`)
+                            .openOn(map);
+                    } else {
+                        // Initial content with only location names displayed
+                        let content = `<div class="popup-title">Hex ID: ${hexId}</div>`;
+                        content += `<div class="popup-subtitle">${data.terrain_type}</div>`;
+                        content += `<div class="popup-section">
+                                        <strong>Description:</strong>
+                                        <textarea id="description" rows="3">${data.description}</textarea>
+                                    </div>`;
+
+                        // Location names only, with expandable sections
+                        content += `<div class="popup-section"><span class="popup-section-title">Locations:</span><br>`;
+                        data.locations.forEach((loc, index) => {
+                            content += `<div class="popup-item" id="location-${index}">
+                                            <span class="location-name" onclick="expandLocation(${index})" style="cursor:pointer;">
+                                                ${loc.name} <em>(${loc.location_type})</em>
+                                            </span>
+                                            <div id="location-details-${index}" style="display:none;">
+                                                <label><strong>Name:</strong></label>
+                                                <input type="text" value="${loc.name}" class="location-name-input" /><br>
+                                                <label><strong>Type:</strong></label>
+                                                <input type="text" value="${loc.location_type}" class="location-type-input" /><br>
+                                                <label><strong>Description:</strong></label>
+                                                <textarea class="location-description" rows="2">${loc.description}</textarea><br>
+                                                <button onclick="collapseLocation(${index})">Collapse</button>
+                                            </div>
+                                        </div>`;
+                        });
+                        content += `</div>`;
+
+                        // Add button for adding new locations
+                        content += `<button onclick="addLocation()">Add New Location</button><br><br>`;
+
+                        // Add save button
+                        content += `<button onclick="saveHexData('${hexId}')">Save Changes</button>`;
+
+                        // Show data in a popup
+                        L.popup()
+                            .setLatLng(coords)
+                            .setContent(content)
+                            .openOn(map);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching hex data:", error);
+                });
+        }
+
+        // Function to expand location details for editing
+        function expandLocation(index) {
+            document.getElementById(`location-details-${index}`).style.display = "block";
+        }
+
+        // Function to collapse location details
+        function collapseLocation(index) {
+            document.getElementById(`location-details-${index}`).style.display = "none";
+        }
+
+        // Function to add a new location
+        function addLocation() {
+            const locationsSection = document.querySelector(".popup-section");
+            const newLocationHtml = `<div class="popup-item">
+                                        <span class="location-name" onclick="expandLocation(${locationsSection.children.length - 1})" style="cursor:pointer;">
+                                            New Location
+                                        </span>
+                                        <div id="location-details-${locationsSection.children.length - 1}" style="display:none;">
+                                            <label><strong>Name:</strong></label>
+                                            <input type="text" placeholder="New Location Name" class="location-name-input" /><br>
+                                            <label><strong>Type:</strong></label>
+                                            <input type="text" placeholder="Location Type" class="location-type-input" /><br>
+                                            <label><strong>Description:</strong></label>
+                                            <textarea class="location-description" rows="2" placeholder="Location Description"></textarea><br>
+                                            <button onclick="collapseLocation(${locationsSection.children.length - 1})">Collapse</button>
+                                        </div>
+                                    </div>`;
+            locationsSection.insertAdjacentHTML("beforeend", newLocationHtml);
+        }
+
+        function saveHexData(hexId) {
+            // Collect updated data from popup fields
+            const description = document.getElementById("description").value;
+            const locations = [];
+            document.querySelectorAll(".popup-item").forEach((locElement, index) => {
+                const name = locElement.querySelector(".location-name-input")?.value || locElement.querySelector(".location-name").innerText;
+                const locationType = locElement.querySelector(".location-type-input")?.value || "";
+                const locationDescription = locElement.querySelector(".location-description")?.value || "";
+                
+                locations.push({ name, location_type: locationType, description: locationDescription });
+            });
+        
+            const dataToSave = { description, locations };
+            console.log("Data to be saved:", dataToSave); // Log data before sending
+        
+            // Send updated data to the server
+            fetch(`/hex/${hexId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dataToSave)
+            }).then(response => response.json())
+              .then(data => {
+                  console.log("Hex data saved:", data);
+                  if (data.status === "success") {
+                      alert("Changes saved successfully!");
+                  } else {
+                      alert("Failed to save changes: " + data.message);
+                  }
+              }).catch(error => {
+                  console.error("Error saving hex data:", error);
+                  alert("Failed to save changes due to a network or server error.");
+              });
+        }        
+    </script>
+</body>
+</html>

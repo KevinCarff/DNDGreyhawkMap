@@ -1,0 +1,20 @@
+{
+    "description": "A mysterious place???",
+    "locations": [
+        {
+            "name": "New Location",
+            "location_type": "",
+            "description": ""
+        },
+        {
+            "name": "newThing",
+            "location_type": "",
+            "description": ""
+        },
+        {
+            "name": "New Location",
+            "location_type": "",
+            "description": ""
+        }
+    ]
+}
