@@ -1,43 +1,32 @@
 /* popup-styles.css */
+
+/* Popup title styling */
 .popup-title {
-    font-size: 18px;
     font-weight: bold;
-    color: #6b4226;
-    text-align: center;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-    margin-bottom: 10px;
-}
-
-.popup-subtitle {
     font-size: 16px;
-    color: #4a2f26;
-    font-style: italic;
     margin-bottom: 10px;
 }
 
+/* Sections within the popup */
 .popup-section {
     margin-top: 10px;
 }
 
-.popup-section-title {
-    font-size: 14px;
-    font-weight: bold;
-    color: #4a2f26;
-    text-decoration: underline;
+/* Location button */
+.location-button {
+    background-color: #ffcc00;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-bottom: 5px;
 }
 
-.popup-item {
-    margin-left: 15px;
-    position: relative;
-    padding: 5px 0;
-}
-
-.popup-item button {
-    position: absolute;
-    right: 0;
-    font-size: 10px;
-    color: #6b4226;
-    background: none;
+.add-location-button, .save-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
     border: none;
     cursor: pointer;
+    margin-top: 10px;
+    display: inline-block;
 }
