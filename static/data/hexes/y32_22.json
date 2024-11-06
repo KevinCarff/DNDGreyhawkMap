@@ -1,20 +1,22 @@
 {
-    "description": "A mysterious e???",
+    "description": "undefinedgg",
     "locations": [
         {
-            "name": "efef",
-            "location_type": "sse",
-            "description": ""
-        },
-        {
-            "name": "Unnamed",
-            "location_type": "",
-            "description": ""
-        },
-        {
-            "name": "Unnamed",
-            "location_type": "",
-            "description": ""
+            "name": "Greenest",
+            "coordinates": [
+                357.33749999999986,
+                357.0874999999998
+            ],
+            "location_type": "City",
+            "description": "Description",
+            "history": "History",
+            "landmarks": [],
+            "resources": [],
+            "encounters": [],
+            "connections": [],
+            "created_at": "2024-11-06T06:56:58.900Z",
+            "updated_at": "2024-11-06T06:57:23.788Z",
+            "notes": ""
         }
     ]
 }

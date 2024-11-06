@@ -7,12 +7,12 @@
     margin-bottom: 10px;
 }
 
-/* Sections within the popup */
+/* General popup section styling */
 .popup-section {
     margin-top: 10px;
 }
 
-/* Location button */
+/* Location button styling */
 .location-button {
     background-color: #ffcc00;
     border: none;
@@ -21,6 +21,7 @@
     margin-bottom: 5px;
 }
 
+/* Button styles for adding locations and saving */
 .add-location-button, .save-button {
     background-color: #4CAF50;
     color: white;
@@ -29,4 +30,105 @@
     cursor: pointer;
     margin-top: 10px;
     display: inline-block;
+}
+
+/* Modal styling */
+.modal-header {
+    font-weight: bold;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-button {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-body {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    text-align: right;
+    margin-top: 10px;
+}
+
+/* Styling for input fields */
+.location-name-input, .location-type-input, .resource-name, .connection-name, .encounter-creature, .encounter-frequency, .encounter-difficulty, .landmark-name {
+    width: calc(100% - 10px);
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.description-input, .location-description, .location-history, .location-notes, .landmark-description {
+    width: calc(100% - 10px);
+    padding: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    resize: vertical;
+}
+
+/* Specific styling for landmark, resource, encounter, and connection containers */
+#landmarks-container, #resources-container, #encounters-container, #connections-container {
+    margin-top: 10px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Button styling within each section container */
+#landmarks-container button, #resources-container button, #encounters-container button, #connections-container button {
+    background-color: #2196F3;
+    color: white;
+    padding: 5px;
+    border: none;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+/* Hover effects for interactive elements */
+.location-button:hover, .add-location-button:hover, .save-button:hover, .close-button:hover {
+    background-color: #45a049;
+}
+
+#landmarks-container button:hover, #resources-container button:hover, #encounters-container button:hover, #connections-container button:hover {
+    background-color: #1976D2;
+}
+
+/* Scrollable containers for sections with dynamic content */
+#landmarks-container, #resources-container, #encounters-container, #connections-container {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Basic styling for the remove button */
+.remove-location-button {
+    background-color: #e74c3c; /* A red background for delete action */
+    color: #fff; /* White text for contrast */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners */
+    padding: 5px 10px; /* Padding for a nice click area */
+    margin-left: 10px; /* Space between button and location name */
+    font-size: 12px; /* Slightly smaller text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Hover effect for the remove button */
+.remove-location-button:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Optional: Style the remove button when focused */
+.remove-location-button:focus {
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 4px rgba(231, 76, 60, 0.8); /* Subtle shadow for focus indication */
 }
