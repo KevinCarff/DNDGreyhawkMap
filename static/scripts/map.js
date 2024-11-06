@@ -99,6 +99,24 @@ function fetchHexData(hexId, coords) {
         .catch(error => console.error("Error fetching hex data:", error));
 }
 
+// Add new location to the popup
+function addLocation() {
+    const locationsContainer = document.querySelector('.locations-container');
+    if (locationsContainer) {
+        const newIndex = locationsContainer.children.length;
+        const newLocationHTML = `
+            <div class="popup-item" id="location-${newIndex}">
+                <button class="location-button" onclick="openLocationModal(${newIndex}, 'New Location', 'Type', 'Description')">
+                    New Location <em>(Type)</em>
+                </button>
+            </div>
+        `;
+        locationsContainer.insertAdjacentHTML('beforeend', newLocationHTML);
+    } else {
+        console.error("Locations container not found in popup.");
+    }
+}
+
 // Modal functions for viewing and editing locations
 function openLocationModal(index, name, type, description) {
     const modalContent = `
@@ -122,33 +140,61 @@ function openLocationModal(index, name, type, description) {
     document.getElementById("location-modal").style.display = "block";
 }
 
-function closeLocationModal() {
-    document.getElementById("location-modal").style.display = "none";
-}
-
 function saveLocationDetails(index) {
     const name = document.getElementById("modal-name").value;
     const type = document.getElementById("modal-type").value;
     const description = document.getElementById("modal-description").value;
-    document.getElementById(`location-${index}`).querySelector(".location-name").innerText = `${name} (${type})`;
+    const locationElement = document.getElementById(`location-${index}`);
+
+    // Update the button text and data attributes with new values
+    if (locationElement) {
+        const locationButton = locationElement.querySelector(".location-button");
+        locationButton.innerText = `${name} (${type})`;
+        locationButton.dataset.name = name; // Store updated name
+        locationButton.dataset.type = type; // Store updated type
+        locationButton.dataset.description = description; // Store updated description
+    }
     closeLocationModal();
+}
+
+function closeLocationModal() {
+    document.getElementById("location-modal").style.display = "none";
 }
 
 function saveHexData(hexId) {
     const description = document.getElementById("description").value;
-    const locations = Array.from(document.querySelectorAll(".popup-item")).map(locElement => ({
-        name: locElement.querySelector(".location-name")?.innerText || "",
-        location_type: locElement.querySelector(".location-type-input")?.value || "",
-        description: locElement.querySelector(".location-description")?.value || ""
-    }));
+    const locations = Array.from(document.querySelectorAll(".popup-item")).map(locElement => {
+        const button = locElement.querySelector(".location-button");
+        const [name, type] = button.innerText.split(" (");
+        return {
+            name: name.trim(),
+            location_type: type ? type.replace(")", "").trim() : "",
+            description: locElement.querySelector(".location-description")?.value || ""
+        };
+    });
+
+    // Save the updated data to the server
     fetch(`/hex/${hexId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description, locations })
     })
     .then(response => response.json())
-    .then(data => alert(data.status === "success" ? "Changes saved successfully!" : "Failed to save changes: " + data.message))
-    .catch(error => console.error("Error saving hex data:", error));
+    .then(data => {
+        if (data.status === "success") {
+            alert("Changes saved successfully!");
+            // Re-fetch and refresh popup content with the latest data at the same location
+            if (lastPopupCoords) {
+                fetchHexData(hexId, lastPopupCoords);
+            }
+        } else {
+            alert("Failed to save changes: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error saving hex data:", error);
+        alert("Failed to save changes due to a network or server error.");
+    });
 }
 
 // Initialize grids

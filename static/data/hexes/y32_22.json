@@ -2,17 +2,17 @@
     "description": "A mysterious e???",
     "locations": [
         {
-            "name": "New Location",
+            "name": "efef",
+            "location_type": "sse",
+            "description": ""
+        },
+        {
+            "name": "Unnamed",
             "location_type": "",
             "description": ""
         },
         {
-            "name": "newThing",
-            "location_type": "",
-            "description": ""
-        },
-        {
-            "name": "New Location",
+            "name": "Unnamed",
             "location_type": "",
             "description": ""
         }
