@@ -1,5 +1,5 @@
 {
-    "description": "undefinedgg",
+    "description": "Legos",
     "locations": [
         {
             "name": "Greenest",
@@ -15,7 +15,7 @@
             "encounters": [],
             "connections": [],
             "created_at": "2024-11-06T06:56:58.900Z",
-            "updated_at": "2024-11-06T06:57:23.788Z",
+            "updated_at": "2024-11-06T07:03:22.798Z",
             "notes": ""
         }
     ]

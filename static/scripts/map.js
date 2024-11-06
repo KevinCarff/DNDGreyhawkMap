@@ -39,6 +39,8 @@ class Location {
 // Global array to keep track of locations for the current hex
 let locations = [];
 let thisDescription = "";
+let xycoords = [];
+let thisID = "";
 let popup = L.popup(); // Create a single popup instance to avoid closing
 
 // Map configuration constants
@@ -133,7 +135,8 @@ function fetchHexData(hexId, coords) {
 
                 return location;
             });
-
+            xycoords = coords;
+            thisID = hexId;
             renderPopup(hexId, coords);
         })
         .catch(error => console.error("Error fetching hex data:", error));
@@ -240,6 +243,7 @@ function saveLocationDetails(index) {
     location.updated_at = new Date();
 
     closeLocationModal();
+    renderPopup(thisID, xycoords);
 }
 
 // Close the modal
