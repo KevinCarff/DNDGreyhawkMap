@@ -38,6 +38,7 @@ class Location {
 
 // Global array to keep track of locations for the current hex
 let locations = [];
+let thisTerrain = "";
 let thisDescription = "";
 let xycoords = [];
 let thisID = "";
@@ -115,6 +116,7 @@ function fetchHexData(hexId, coords) {
     fetch(`/hex/${hexId}`)
         .then(response => response.json())
         .then(data => {
+            thisTerrain = data.terrain_type;
             thisDescription = data.description;
             locations = data.locations.map(loc => {
                 let location = new Location(
@@ -152,6 +154,10 @@ function removeLocation(index, hexId, coords) {
 function renderPopup(hexId, coords) {
     let content = `<div class="popup-title">Hex ID: ${hexId}</div>
         <div class="popup-section">
+            <label><strong>Terrain-Type:</strong></label>
+            <textarea id="terrain" class="terrain-input" rows="1">${thisTerrain}</textarea>
+        </div>
+        <div class="popup-section">
             <label><strong>Description:</strong></label>
             <textarea id="description" class="description-input" rows="3">${thisDescription}</textarea>
         </div>
@@ -187,7 +193,6 @@ function addLocation(hexId, coords) {
     renderPopup(hexId, coords); // Re-render the popup to display the new location
 }
 
-// Modal functions for viewing and editing locations
 function openLocationModal(index) {
     const location = locations[index];
 
@@ -207,7 +212,57 @@ function openLocationModal(index) {
             <textarea id="modal-history" rows="2" class="location-history">${location.history}</textarea><br>
             <label>Notes:</label>
             <textarea id="modal-notes" rows="2" class="location-notes">${location.notes}</textarea><br>
-            <!-- Landmarks, resources, encounters, and connections as before -->
+            
+            <!-- Landmarks Section -->
+            <h3>Landmarks</h3>
+            <div id="landmarks-container">
+                ${location.landmarks.map((landmark, i) => `
+                    <div class="landmark">
+                        <input type="text" class="landmark-name" placeholder="Landmark Name" value="${landmark.name}" />
+                        <input type="text" class="landmark-description" placeholder="Description" value="${landmark.description}" />
+                        <button onclick="removeLandmark(${index}, ${i})">Remove</button>
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="addLandmark(${index})">Add Landmark</button>
+
+            <!-- Resources Section -->
+            <h3>Resources</h3>
+            <div id="resources-container">
+                ${location.resources.map((resource, i) => `
+                    <div class="resource">
+                        <input type="text" class="resource-name" placeholder="Resource Name" value="${resource}" />
+                        <button onclick="removeResource(${index}, ${i})">Remove</button>
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="addResource(${index})">Add Resource</button>
+
+            <!-- Encounters Section -->
+            <h3>Encounters</h3>
+            <div id="encounters-container">
+                ${location.encounters.map((encounter, i) => `
+                    <div class="encounter">
+                        <input type="text" class="encounter-creature" placeholder="Creature" value="${encounter.creature}" />
+                        <input type="text" class="encounter-frequency" placeholder="Frequency" value="${encounter.frequency}" />
+                        <input type="text" class="encounter-difficulty" placeholder="Difficulty" value="${encounter.difficulty}" />
+                        <button onclick="removeEncounter(${index}, ${i})">Remove</button>
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="addEncounter(${index})">Add Encounter</button>
+
+            <!-- Connections Section -->
+            <h3>Connections</h3>
+            <div id="connections-container">
+                ${location.connections.map((connection, i) => `
+                    <div class="connection">
+                        <input type="text" class="connection-name" placeholder="Connected Location" value="${connection}" />
+                        <button onclick="removeConnection(${index}, ${i})">Remove</button>
+                    </div>
+                `).join('')}
+            </div>
+            <button onclick="addConnection(${index})">Add Connection</button>
         </div>
         <div class="modal-footer">
             <button onclick="saveLocationDetails(${index})" class="save-button">Save</button>
@@ -217,6 +272,55 @@ function openLocationModal(index) {
     document.getElementById("location-modal").style.display = "block";
 }
 
+// Helper functions to add and remove entries
+function addLandmark(index) {
+    const container = document.getElementById("landmarks-container");
+    const newLandmark = document.createElement("div");
+    newLandmark.classList.add("landmark");
+    newLandmark.innerHTML = `
+        <input type="text" class="landmark-name" placeholder="Landmark Name" />
+        <input type="text" class="landmark-description" placeholder="Description" />
+        <button onclick="this.parentNode.remove()">Remove</button>
+    `;
+    container.appendChild(newLandmark);
+}
+
+function addResource(index) {
+    const container = document.getElementById("resources-container");
+    const newResource = document.createElement("div");
+    newResource.classList.add("resource");
+    newResource.innerHTML = `
+        <input type="text" class="resource-name" placeholder="Resource Name" />
+        <button onclick="this.parentNode.remove()">Remove</button>
+    `;
+    container.appendChild(newResource);
+}
+
+function addEncounter(index) {
+    const container = document.getElementById("encounters-container");
+    const newEncounter = document.createElement("div");
+    newEncounter.classList.add("encounter");
+    newEncounter.innerHTML = `
+        <input type="text" class="encounter-creature" placeholder="Creature" />
+        <input type="text" class="encounter-frequency" placeholder="Frequency" />
+        <input type="text" class="encounter-difficulty" placeholder="Difficulty" />
+        <button onclick="this.parentNode.remove()">Remove</button>
+    `;
+    container.appendChild(newEncounter);
+}
+
+function addConnection(index) {
+    const container = document.getElementById("connections-container");
+    const newConnection = document.createElement("div");
+    newConnection.classList.add("connection");
+    newConnection.innerHTML = `
+        <input type="text" class="connection-name" placeholder="Connected Location" />
+        <button onclick="this.parentNode.remove()">Remove</button>
+    `;
+    container.appendChild(newConnection);
+}
+
+
 // Save updated location details from the modal
 function saveLocationDetails(index) {
     const location = locations[index];
@@ -225,7 +329,7 @@ function saveLocationDetails(index) {
     location.description = document.getElementById("modal-description").value;
     location.history = document.getElementById("modal-history").value;
     location.notes = document.getElementById("modal-notes").value;
-    
+
     location.landmarks = Array.from(document.querySelectorAll(".landmark-name")).map((el, i) => ({
         name: el.value,
         description: document.querySelectorAll(".landmark-description")[i].value
@@ -253,6 +357,7 @@ function closeLocationModal() {
 
 // Save hex data to server
 function saveHexData(hexId) {
+    const terrain_type = document.getElementById("terrain").value;
     const description = document.getElementById("description").value;
 
     const serializedLocations = locations.map(loc => ({
@@ -273,7 +378,7 @@ function saveHexData(hexId) {
     fetch(`/hex/${hexId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description, locations: serializedLocations })
+        body: JSON.stringify({terrain_type, description, locations: serializedLocations })
     })
     .then(response => response.json())
     .then(data => {

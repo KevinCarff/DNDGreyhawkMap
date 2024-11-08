@@ -1,4 +1,5 @@
 {
+    "terrain_type": "Grasslands",
     "description": "Legos",
     "locations": [
         {
@@ -10,13 +11,32 @@
             "location_type": "City",
             "description": "Description",
             "history": "History",
-            "landmarks": [],
-            "resources": [],
-            "encounters": [],
-            "connections": [],
+            "landmarks": [
+                {
+                    "name": "place1",
+                    "description": "cool place"
+                },
+                {
+                    "name": "asfsfe",
+                    "description": ""
+                }
+            ],
+            "resources": [
+                "hhh"
+            ],
+            "encounters": [
+                {
+                    "creature": "aefsef",
+                    "frequency": "sefsef",
+                    "difficulty": "fefef"
+                }
+            ],
+            "connections": [
+                "this"
+            ],
             "created_at": "2024-11-06T06:56:58.900Z",
-            "updated_at": "2024-11-06T07:03:22.798Z",
-            "notes": ""
+            "updated_at": "2024-11-08T20:19:00.716Z",
+            "notes": "nnn"
         }
     ]
 }
